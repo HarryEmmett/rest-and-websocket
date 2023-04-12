@@ -1,0 +1,62 @@
+{
+   "parser": "@typescript-eslint/parser", // Specifies the ESLint parser
+   "extends": [
+      "plugin:@typescript-eslint/recommended" // Uses the recommended rules from the @typescript-eslint/eslint-plugin
+   ],
+   "parserOptions": {
+      "ecmaVersion": 2018, // Allows for the parsing of modern ECMAScript features
+      "sourceType": "module" // Allows for the use of imports
+   },
+   "rules": {
+      "@typescript-eslint/indent": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/camelcase": "off",
+      "@typescript-eslint/array-type": "off",
+      "@typescript-eslint/no-object-literal-type-assertion": "off",
+      "no-use-before-define": "off",
+      "@typescript-eslint/no-inferrable-types": "off",
+      "max-len": [
+         "warn",
+         {
+            "code": 150
+         }
+      ],
+      "quotes": [
+         "error",
+         "double"
+      ],
+      "no-multi-spaces": "warn",
+      "no-multiple-empty-lines": [
+         "warn",
+         {
+            "max": 1
+         }
+      ],
+      "import/prefer-default-export": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/consistent-type-assertions": "warn"
+      // "@typescript-eslint/typedef": [
+      //   "error",
+      //   {
+      //     "arrowParameter": true,
+      //     "variableDeclaration": true
+      //   }
+      // ]
+   },
+   "overrides": [
+      {
+         // enable the rule specifically for TypeScript files
+         "files": [
+            "*.ts",
+            "*.mts",
+            "*.cts",
+            "*.tsx"
+         ],
+         "rules": {
+            "@typescript-eslint/explicit-function-return-type": "warn",
+            "semi": "error",
+            "@typescript-eslint/no-unused-vars": "warn"
+         }
+      }
+   ]
+}
