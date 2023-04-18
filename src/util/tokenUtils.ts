@@ -74,7 +74,7 @@ export const validUserRequest = (
     const { user } = (req as FormattedRequest).token;
 
     if (username !== user) {
-        return res.status(401).send({ message: "unauthorized access", error: "You can only edit your own user profile" });
+        return res.status(401).send({ message: "unauthorized access", error: "You can only edit your own items" });
     }
 
     next();
