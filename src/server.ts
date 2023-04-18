@@ -7,6 +7,7 @@ import { appConfig } from "./config/appConfig";
 import { authenticationController } from "./routes/authenticationController";
 import { userProfileController } from "./routes/userProfileController";
 import { userFriendController } from "./routes/userFriendController";
+import { postController } from "./routes/postController";
 import { websocket } from "./routes/websocket";
 
 const app = express();
@@ -29,11 +30,12 @@ try {
 }
 
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: ["http://localhost:3000", "http://localhost:5173"] }));
 app.set("socketio", io);
 app.use("/", authenticationController);
 app.use("/userProfile", userProfileController);
 app.use("/friends", userFriendController);
+app.use("/posts", postController);
 websocket(app);
 
 server.listen(appConfig.serverPort, () => {
