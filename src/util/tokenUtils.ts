@@ -11,7 +11,7 @@ const invalidTokenMessage = {
 
 export const generateToken = (username: string): string => {
 
-    const token = jwt.sign({ user: username.toLowerCase() }, mySecret, { expiresIn: "1000000s" });
+    const token = jwt.sign({ user: username.toLowerCase() }, mySecret, { expiresIn: "10m" });
 
     return token;
 };
@@ -20,7 +20,7 @@ export const checkToken = (
     req: Request, res: Response, next: NextFunction
 ): Response | void => {
 
-    const header = req.headers["authorization"];
+    const header = req.headers["authorization"] as string;
     const token = header?.split("Bearer ")[1];
 
     if (token) {
@@ -40,9 +40,9 @@ export const authValidation = (
     req: Request, res: Response, next: NextFunction
 ): Response | void => {
 
-    const requestBodyKeys: string[] = Object.keys(req.body);
+    const { username, password } = req.body;
 
-    if (!requestBodyKeys.includes("username") || !requestBodyKeys.includes("password") || requestBodyKeys.length !== 2) {
+    if (!username || !password) {
         return res.status(400).send({
             message: "Please provide a username and password",
             error: "Either a username or password was not provided"

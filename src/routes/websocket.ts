@@ -5,9 +5,11 @@
 
 export const websocket = (app: Express): void => {
 
-    const io: Server = app.get("socketio");
+    // const io: Server = app.get("socketio");
 
-//     io.on("connection", (socket: any) => {
+    // io.on("connection", (socket: any) => {
+    //     console.log(socket.user);
+    // });
 //         //io.disconnectSockets();
 //         console.log("hello");
 //         socket.on("login", ({ name, room }, errorCallback) => {
