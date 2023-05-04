@@ -25,6 +25,12 @@ router.get("/:username/get", checkToken, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
 
+    if (username) {
+        return res.status(400).send({
+            message: "bad request", error: "Please provide the correct request body"
+        });
+    }
+
     const person = await UserModel.findOne({ "username": username }, appConfig.omitValues);
 
     if (person) {
@@ -43,24 +49,20 @@ router.get("/:username/get", checkToken, async (req, res) => {
 router.put("/:username/edit", checkToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
-    const acceptedKeys = ["DOB", "profileImage", "preferredName"];
-
+    const { DOB, profileImage, preferredName } = req.body;
     let date: Date | undefined;
 
-    for (const key in req.body) {
-        // delete unwanted keys
-        if (!acceptedKeys.includes(key)) {
-            delete req.body[key];
-        }
+    if (!DOB || !profileImage || !preferredName) {
+        return res.status(400).send({
+            message: "bad request", error: "Please provide the correct request body"
+        });
+    }
 
-        if (key === "DOB") {
-            const valid = moment(req.body.DOB, "YYYY-MM-DD", true).isValid();
-            if (valid) {
-                date = new Date(req.body.DOB);
-            } else {
-                return res.status(400).send({ message: "bad request", error: "The date needs to be provided in YYYY/MM/DD format" });
-            }
-        }
+    const valid = moment(req.body.DOB, "YYYY-MM-DD", true).isValid();
+    if (valid) {
+        date = new Date(req.body.DOB);
+    } else {
+        return res.status(400).send({ message: "bad request", error: "The date needs to be provided in YYYY/MM/DD format" });
     }
 
     try {
