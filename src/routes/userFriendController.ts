@@ -1,14 +1,14 @@
 import express from "express";
 import UserModel from "../models/user";
 import { checkToken, validUserRequest } from "../util/tokenUtils";
-import { FormattedRequest, RequestBody, RequestParams } from "../types/types";
+import { FormattedRequest, IUser, RequestParams } from "../types/types";
 
 const router = express.Router();
 
 router.post("/:username/add", checkToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
-    const { friends } = req.body as RequestBody;
+    const { friends } = req.body as IUser;
 
     if (friends) {
         try {
@@ -54,7 +54,7 @@ router.post("/:username/add", checkToken, validUserRequest, async (req, res) => 
 router.put("/:username/delete", checkToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
-    const { friends } = req.body as RequestBody;
+    const { friends } = req.body as IUser;
 
     await UserModel.updateOne(
         { "username": username },
@@ -81,7 +81,7 @@ router.put("/:username/delete", checkToken, validUserRequest, async (req, res) =
 
 router.put("/:username/request", checkToken, validUserRequest, async (req, res) => {
     const { username } = req.params as unknown as RequestParams;
-    const { status, friends } = req.body as RequestBody;
+    const { status, friends } = req.body as IUser;
 
     if (status && friends) {
         const updateUser = await UserModel.findOne({ username: username });
