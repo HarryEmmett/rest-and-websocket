@@ -11,7 +11,7 @@ const invalidTokenMessage = {
 
 export const generateToken = (username: string): string => {
 
-    const token = jwt.sign({ user: username.toLowerCase() }, mySecret, { expiresIn: "10m" });
+    const token = jwt.sign({ user: username.toLowerCase() }, mySecret, { expiresIn: "30m" });
 
     return token;
 };
@@ -19,7 +19,6 @@ export const generateToken = (username: string): string => {
 export const checkToken = (
     req: Request, res: Response, next: NextFunction
 ): Response | void => {
-
     const header = req.headers["authorization"] as string;
     const token = header?.split("Bearer ")[1];
 
@@ -56,10 +55,13 @@ export const authValidation = (
         });
     }
 
-    if (req.body.password.length < 5 || req.body.username.length < 5) {
+    const user = checkValidUsername(req.body.username);
+    const pass = checkValidPassword(req.body.password);
+
+    if (!user || !pass) {
         return res.status(400).send({
-            message: "Password or Username too short",
-            error: "The password & username needs to be greater than 5 characters"
+            message: "Invalid format",
+            error: "Please provide the correct format"
         });
     }
 
@@ -70,6 +72,9 @@ export const validUserRequest = (
     req: Request, res: Response, next: NextFunction
 ): Response | void => {
 
+    // TODO not sending the editing profile name here does this even need to
+    // check for this can only edit yours anyway
+
     const { username } = req.params;
     const { user } = (req as FormattedRequest).token;
 
@@ -78,4 +83,14 @@ export const validUserRequest = (
     }
 
     next();
+};
+
+export const checkValidUsername = (credential: string): boolean => {
+    const regex = /^[A-Za-z0-9]*$/;
+    return regex.test(credential);
+};
+
+export const checkValidPassword = (credential: string): boolean => {
+    const regex = /^[A-Za-z0-9]*$/; // todo change to password one
+    return regex.test(credential);
 };
