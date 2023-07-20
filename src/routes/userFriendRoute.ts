@@ -1,14 +1,14 @@
 import express from "express";
 import UserModel from "../models/user";
 import { checkToken, validUserRequest } from "../util/tokenUtils";
-import { FormattedRequest, IUser, RequestParams } from "../types/types";
+import { FormattedRequest, IFormattedUser, IUserRequest, RequestParams } from "../types/types";
 
 const router = express.Router();
 
 router.post("/:username/add", checkToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
-    const { friends } = req.body as IUser;
+    const { friends } = req.body as IUserRequest;
 
     if (friends) {
         try {
@@ -27,7 +27,7 @@ router.post("/:username/add", checkToken, validUserRequest, async (req, res) => 
 
             // // find the main user to update the friends list
             const updateUser = await UserModel.findOne({ username: username });
-            const checkFriends = updateUser?.friends.some(user => user.username === friends);
+            const checkFriends = updateUser?.friends.some(user => user?.username === friends);
 
             if (checkFriends) {
                 // friend already exists
@@ -36,7 +36,9 @@ router.post("/:username/add", checkToken, validUserRequest, async (req, res) => 
 
             updateUser?.friends.push(
                 {
-                    username: friends
+                    username: friends,
+                    createdAt: new Date(),
+                    status: "PENDING"
                 }
             );
 
@@ -54,7 +56,7 @@ router.post("/:username/add", checkToken, validUserRequest, async (req, res) => 
 router.put("/:username/delete", checkToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
-    const { friends } = req.body as IUser;
+    const { friends } = req.body as IFormattedUser;
 
     await UserModel.updateOne(
         { "username": username },
@@ -81,7 +83,7 @@ router.put("/:username/delete", checkToken, validUserRequest, async (req, res) =
 
 router.put("/:username/request", checkToken, validUserRequest, async (req, res) => {
     const { username } = req.params as unknown as RequestParams;
-    const { status, friends } = req.body as IUser;
+    const { status, friends } = req.body as IUserRequest;
 
     if (status && friends) {
         const updateUser = await UserModel.findOne({ username: username });
@@ -113,7 +115,7 @@ router.put("/:username/request", checkToken, validUserRequest, async (req, res) 
         });
     }
 });
-export { router as userFriendController };
+export { router as userFriendRoute };
 
 // const updatedPerson = await UserModel.findOneAndUpdate({ "username": username },
 //     {

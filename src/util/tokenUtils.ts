@@ -11,7 +11,7 @@ const invalidTokenMessage = {
 
 export const generateToken = (username: string): string => {
 
-    const token = jwt.sign({ user: username.toLowerCase() }, mySecret, { expiresIn: "30m" });
+    const token = jwt.sign({ user: username.toLowerCase()}, mySecret, { expiresIn: "30m" });
 
     return token;
 };

@@ -2,8 +2,9 @@ import express from "express";
 import { appConfig } from "../config/appConfig";
 import { checkToken, validUserRequest } from "../util/tokenUtils";
 import UserModel from "../models/user";
-import { IUser, RequestParams, UpdateDetails } from "../types/types";
+import { IFormattedUser, IUser, RequestParams, UpdateDetails } from "../types/types";
 import moment from "moment";
+import { base64 } from "../util/userProfileUtil";
 
 const router = express.Router();
 
@@ -31,23 +32,22 @@ router.get("/:username/get", checkToken, async (req, res) => {
         });
     }
 
-    const person = await UserModel.findOne({ "username": username }, appConfig.omitValues);
+    const person: IUser | null = await UserModel.findOne({ "username": username }, appConfig.omitValues);
 
     if (person) {
         return res.status(200).send({
             message: "success",
-            data: person
+            data: base64(person)
         });
     } else {
-        return res.status(401).send({
+        return res.status(404).send({
             message: "something went wrong",
-            error: "error with request"
+            error: "No user found"
         });
     }
 });
 
 router.put("/:username/edit", checkToken, validUserRequest, async (req, res) => {
-
     const userProfileKeys = ["DOB", "preferredName", "profileImage"];
     const { username } = req.params as unknown as RequestParams;
 
@@ -76,30 +76,33 @@ router.put("/:username/edit", checkToken, validUserRequest, async (req, res) => 
     // }
 
     for (let i = 0; i < reqBody.length; i++) {
-        if (Object.keys(reqBody[i] as UpdateDetails).toString() === "DOB") {
-            const valid = moment((reqBody[i] as UpdateDetails)["DOB"], "YYYY-MM-DD", true).isValid();
+        if (Object.keys(reqBody[i] as Partial<IFormattedUser>).toString() === "DOB") {
+            const valid = moment((reqBody[i] as Partial<IFormattedUser>)["DOB"], "YYYY-MM-DD", true).isValid();
             if (valid) {
-                date = new Date((reqBody[i] as UpdateDetails)["DOB"]);
+                date = new Date((reqBody[i] as UpdateDetails)["DOB"] as string);
                 // todo trim date
                 updateDetails.DOB = date;
+
             } else {
                 return res.status(400).send({ message: "bad request", error: "The date needs to be provided in YYYY/MM/DD format" });
             }
         }
+        // could use continue to skip rest of code inside if
         const key = Object.keys(reqBody[i] as UpdateDetails).toString();
         updateDetails[key] = (reqBody[i] as UpdateDetails)[key];
     }
 
     try {
-        const person = await UserModel.findOneAndUpdate(
+        const person: IUser | null = await UserModel.findOneAndUpdate(
             { "username": username },
             {
                 $set: updateDetails,
             },
             { new: true, fields: appConfig.omitValues }
         );
+
         if (person) {
-            return res.status(200).send(person);
+            return res.status(200).send({user: base64(person), message: "successfully updated"});
         } else {
             return res.status(400).send({ message: "bad request", error: "user not found" });
         }
@@ -122,4 +125,4 @@ router.delete("/:username/delete", checkToken, validUserRequest, async (req, res
                 }));
 });
 
-export { router as userProfileController };
+export { router as userProfileRoute };

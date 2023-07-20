@@ -7,9 +7,26 @@ import { checkToken, validUserRequest } from "../util/tokenUtils";
 const router = express.Router();
 
 // get all
-router.get("/posts", checkToken, async (req, res) => {
-    const posts = await PostModel.find({});
-    res.send(posts);
+router.get("/get", checkToken, async (req, res) => {
+    try {
+        const posts = await PostModel.find({});
+        return res.status(200).send(posts);
+    } catch (e) {
+        return res.status(400).send(e.message);
+    }
+});
+
+// get number of posts
+router.get("/get/:from/:to", async (req, res) => {
+    const { from, to } = req.params;
+    try {
+        const posts = await PostModel.find({}).sort({ createdAt: 1 }).skip(parseInt(from)).limit(parseInt(to))
+        const total = await PostModel.countDocuments({});
+        return res.status(200).send(
+            { messgae: "success", data: { posts, total }});
+    } catch (e) {
+    return res.status(400).send(e.message);
+}
 });
 
 // get by id
@@ -67,13 +84,21 @@ router.get("/posts/:id", checkToken, async (req, res) => {
 });
 // create post
 router.post("/createPost", checkToken, async (req, res) => {
-    const post = new PostModel({
-        contents: req.body.contents,
-        createdBy: req.body.username,
-    });
+    try {
+        const post = new PostModel({
+            contents: req.body.contents,
+            createdBy: req.body.username,
+        });
 
-    await post.save();
-    res.sendStatus(200);
+        await post.save();
+        return res.sendStatus(200);
+    } catch (e) {
+        return res.status(400)
+            .send({
+                message: "an error occurred",
+                error: e.message
+            });
+    }
 });
 // like post
 router.post("/likePost/:id", checkToken, async (req, res) => {
@@ -149,7 +174,7 @@ router.post("/commentReply/:id/:commentId", checkToken, async (req, res) => {
     const { contents } = req.body;
     const { username } = req.body;
     const post = await PostModel.findById(id);
-    
+
     if (!post) {
         return res.status(400).send("No post");
     }
@@ -190,4 +215,4 @@ router.delete("/deletePost/:username/:id", checkToken, validUserRequest, async (
 // remove like
 // update post
 
-export { router as postController };
+export { router as postRoute };

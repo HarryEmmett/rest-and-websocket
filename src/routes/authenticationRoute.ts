@@ -9,24 +9,33 @@ const mySecret = "realSecureKey";
 
 const router = express.Router();
 
-router.get("/checkToken", (req, res) => {
+router.get("/checkToken", async (req, res) => {
     const header = req.headers["authorization"] as string;
     const token = header?.split("Bearer ")[1];
-   // console.log("called");
+    let image;
+
     try {
         const vtoken = jwt.verify(token, mySecret) as jwt.JwtPayload;
+        const person = await UserModel.findOne({ "username": vtoken.user.toLowerCase() }, "profileImage");
+        if (person) {
+            image = Buffer.from(person.profileImage as Buffer).toString();
+        } else {
+            image = "";
+        }
 
-        return res.status(200).send({ expires: vtoken.exp, username: vtoken.user, token: token });
+        return res.status(200).send(
+            { expires: vtoken.exp, username: vtoken.user, token: token, profileImage: image }
+        );
     } catch (e) {
+        console.log(e);
         return res.status(401).send({ message: "Error with tokevn", error: e.message });
     }
 });
 
 router.post("/login", authValidation, async (req, res) => {
-    const person = await UserModel.findOne({ "username": req.body.username.toLowerCase() }, "username password");
+    const person = await UserModel.findOne({ "username": req.body.username.toLowerCase() }, "username password profileImage");
 
     if (person) {
-
         return bcrypt.compare(req.body.password, person.password as string, function (err, success) {
             if (err) {
                 return res.status(400).send({ message: "error", error: "something went wrong" });
@@ -38,7 +47,7 @@ router.post("/login", authValidation, async (req, res) => {
                             message: "login successful",
                             jwt: {
                                 token: token,
-                                username: person.username
+                                username: req.body.username
                             }
                         }
                     );
@@ -66,7 +75,6 @@ router.post("/register", authValidation, async (req, res) => {
     if (person) {
         return res.status(400).send({ message: "Inavlid username", error: "The selected username is not available" });
     }
-
 
     return bcrypt.genSalt(saltRounds, function (err, salt) {
         if (err) return;
@@ -159,4 +167,4 @@ router.post("/reset", async (req, res) => {
     return res.status(400).send({ message: "incorrect log in details", error: "Please provide an existing username" });
 });
 
-export { router as authenticationController };
+export { router as authenticationRoute };
