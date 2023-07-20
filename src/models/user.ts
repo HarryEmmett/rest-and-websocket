@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
+import { IUser } from "../types/types";
 
 const { Schema, model } = mongoose;
 
 //schema uses strict: true only lets you place values specified in schema
-const user = new Schema({
+const user: mongoose.Schema<IUser> = new Schema({
     username: { 
       required: true, 
       type: String, 
@@ -21,7 +22,7 @@ const user = new Schema({
       default: Date.now 
     },
     preferredName: String,
-    profileImage: String,
+    profileImage: Buffer,
     DOB: { 
       type: Date,
       default: undefined,
@@ -50,7 +51,7 @@ const user = new Schema({
     }
 });
 
-const UserModel = model("users", user);
+const UserModel: mongoose.Model<IUser> = model("users", user);
 
 export default UserModel;
 
