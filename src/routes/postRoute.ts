@@ -7,7 +7,7 @@ import { checkToken, validUserRequest } from "../util/tokenUtils";
 const router = express.Router();
 
 // get all
-router.get("/get", checkToken, async (req, res) => {
+router.get("/getPosts", checkToken, async (req, res) => {
     try {
         const posts = await PostModel.find({});
         return res.status(200).send(posts);
@@ -16,17 +16,19 @@ router.get("/get", checkToken, async (req, res) => {
     }
 });
 
-// get number of posts
-router.get("/get/:from/:to", async (req, res) => {
-    const { from, to } = req.params;
+// get number of posts#
+// post request as auto scroll request body
+router.post("/getNumPosts", checkToken, async (req, res) => {
+    const { from, to } = req.body;
     try {
-        const posts = await PostModel.find({}).sort({ createdAt: 1 }).skip(parseInt(from)).limit(parseInt(to))
+        // TODO -- format date into hours ago
+        const posts = await PostModel.find({}).sort({ createdAt: 1 }).skip(parseInt(from)).limit(parseInt(to));
         const total = await PostModel.countDocuments({});
         return res.status(200).send(
-            { messgae: "success", data: { posts, total }});
+            { messgae: "success", data: { posts, total } });
     } catch (e) {
-    return res.status(400).send(e.message);
-}
+        return res.status(400).send(e.message);
+    }
 });
 
 // get by id
