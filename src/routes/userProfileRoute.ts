@@ -1,6 +1,6 @@
 import express from "express";
 import { appConfig } from "../config/appConfig";
-import { checkToken, validUserRequest } from "../util/tokenUtils";
+import { checkAccessToken, validUserRequest } from "../util/tokenUtils";
 import UserModel from "../models/user";
 import { IFormattedUser, IUser, RequestParams, UpdateDetails } from "../types/types";
 import moment from "moment";
@@ -8,7 +8,7 @@ import { base64 } from "../util/userProfileUtil";
 
 const router = express.Router();
 
-router.get("/getAllUsers", checkToken, async (_, res) => {
+router.get("/getAllUsers", checkAccessToken, async (_, res) => {
 
     const users = await UserModel.find({}, appConfig.omitValues);
 
@@ -22,7 +22,7 @@ router.get("/getAllUsers", checkToken, async (_, res) => {
     }
 });
 
-router.get("/:username/get", checkToken, async (req, res) => {
+router.get("/:username/get", checkAccessToken, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
 
@@ -47,7 +47,7 @@ router.get("/:username/get", checkToken, async (req, res) => {
     }
 });
 
-router.put("/:username/edit", checkToken, validUserRequest, async (req, res) => {
+router.put("/:username/edit", checkAccessToken, validUserRequest, async (req, res) => {
     const userProfileKeys = ["DOB", "preferredName", "profileImage"];
     const { username } = req.params as unknown as RequestParams;
 
@@ -111,7 +111,7 @@ router.put("/:username/edit", checkToken, validUserRequest, async (req, res) => 
     }
 });
 
-router.delete("/:username/delete", checkToken, validUserRequest, async (req, res) => {
+router.delete("/:username/delete", checkAccessToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
 

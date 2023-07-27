@@ -2,12 +2,12 @@ import express from "express";
 import PostModel from "../models/post";
 import LikeModel from "../models/like";
 import CommentModel from "../models/comment";
-import { checkToken, validUserRequest } from "../util/tokenUtils";
+import { checkAccessToken, validUserRequest } from "../util/tokenUtils";
 
 const router = express.Router();
 
 // get all
-router.get("/getPosts", checkToken, async (req, res) => {
+router.get("/getPosts", checkAccessToken, async (req, res) => {
     try {
         const posts = await PostModel.find({});
         return res.status(200).send(posts);
@@ -18,7 +18,7 @@ router.get("/getPosts", checkToken, async (req, res) => {
 
 // get number of posts#
 // post request as auto scroll request body
-router.post("/getNumPosts", checkToken, async (req, res) => {
+router.post("/getNumPosts", checkAccessToken, async (req, res) => {
     const { from, to } = req.body;
     try {
         // TODO -- format date into hours ago
@@ -32,7 +32,7 @@ router.post("/getNumPosts", checkToken, async (req, res) => {
 });
 
 // get by id
-router.get("/posts/:id", checkToken, async (req, res) => {
+router.get("/posts/:id", checkAccessToken, async (req, res) => {
     const { id } = req.params;
 
     const post = await PostModel.findById(id);
@@ -85,7 +85,7 @@ router.get("/posts/:id", checkToken, async (req, res) => {
 
 });
 // create post
-router.post("/createPost", checkToken, async (req, res) => {
+router.post("/createPost", checkAccessToken, async (req, res) => {
     try {
         const post = new PostModel({
             contents: req.body.contents,
@@ -103,7 +103,7 @@ router.post("/createPost", checkToken, async (req, res) => {
     }
 });
 // like post
-router.post("/likePost/:id", checkToken, async (req, res) => {
+router.post("/likePost/:id", checkAccessToken, async (req, res) => {
 
     const { id } = req.params;
     const post = await PostModel.findById(id);
@@ -146,7 +146,7 @@ router.post("/likePost/:id", checkToken, async (req, res) => {
     }
 });
 // comment on post
-router.post("/commentPost/:id", checkToken, async (req, res) => {
+router.post("/commentPost/:id", checkAccessToken, async (req, res) => {
 
     const { id } = req.params;
     const { contents } = req.body;
@@ -170,7 +170,7 @@ router.post("/commentPost/:id", checkToken, async (req, res) => {
     }
 });
 
-router.post("/commentReply/:id/:commentId", checkToken, async (req, res) => {
+router.post("/commentReply/:id/:commentId", checkAccessToken, async (req, res) => {
     const { id } = req.params;
     const { commentId } = req.params;
     const { contents } = req.body;
@@ -199,7 +199,7 @@ router.post("/commentReply/:id/:commentId", checkToken, async (req, res) => {
 });
 
 // delete post
-router.delete("/deletePost/:username/:id", checkToken, validUserRequest, async (req, res) => {
+router.delete("/deletePost/:username/:id", checkAccessToken, validUserRequest, async (req, res) => {
 
     const { id } = req.params;
 

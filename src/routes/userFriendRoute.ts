@@ -1,11 +1,11 @@
 import express from "express";
 import UserModel from "../models/user";
-import { checkToken, validUserRequest } from "../util/tokenUtils";
+import { checkAccessToken, validUserRequest } from "../util/tokenUtils";
 import { FormattedRequest, IFormattedUser, IUserRequest, RequestParams } from "../types/types";
 
 const router = express.Router();
 
-router.post("/:username/add", checkToken, validUserRequest, async (req, res) => {
+router.post("/:username/add", checkAccessToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
     const { friends } = req.body as IUserRequest;
@@ -53,7 +53,7 @@ router.post("/:username/add", checkToken, validUserRequest, async (req, res) => 
     }
 });
 
-router.put("/:username/delete", checkToken, validUserRequest, async (req, res) => {
+router.put("/:username/delete", checkAccessToken, validUserRequest, async (req, res) => {
 
     const { username } = req.params as unknown as RequestParams;
     const { friends } = req.body as IFormattedUser;
@@ -81,7 +81,7 @@ router.put("/:username/delete", checkToken, validUserRequest, async (req, res) =
                 }));
 });
 
-router.put("/:username/request", checkToken, validUserRequest, async (req, res) => {
+router.put("/:username/request", checkAccessToken, validUserRequest, async (req, res) => {
     const { username } = req.params as unknown as RequestParams;
     const { status, friends } = req.body as IUserRequest;
 

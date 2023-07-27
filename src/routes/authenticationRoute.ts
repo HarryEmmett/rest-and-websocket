@@ -2,33 +2,31 @@ import jwt from "jsonwebtoken";
 import express from "express";
 import bcrypt from "bcrypt";
 import UserModel from "../models/user";
-import { checkValidUsername, generateToken } from "../util/tokenUtils";
+import { checkValidUsername, generateTokens } from "../util/tokenUtils";
 import { authValidation } from "../util/tokenUtils";
 
 const mySecret = "realSecureKey";
 
 const router = express.Router();
 
-router.get("/checkToken", async (req, res) => {
+router.get("/checkRefreshToken", async (req, res) => {
     const header = req.headers["authorization"] as string;
     const token = header?.split("Bearer ")[1];
-    let image;
 
     try {
         const vtoken = jwt.verify(token, mySecret) as jwt.JwtPayload;
-        const person = await UserModel.findOne({ "username": vtoken.user.toLowerCase() }, "profileImage");
-        if (person) {
-            image = Buffer.from(person.profileImage as Buffer).toString();
-        } else {
-            image = "";
-        }
-
+        const accessToken = jwt.sign({ user: vtoken.user.toLowerCase() }, mySecret, { expiresIn: "5m" });
+        const { exp } = jwt.verify(accessToken, mySecret) as jwt.JwtPayload;
         return res.status(200).send(
-            { expires: vtoken.exp, username: vtoken.user, token: token, profileImage: image }
+            {
+                accessToken,
+                expires: exp
+            }
         );
+            
     } catch (e) {
         console.log(e);
-        return res.status(401).send({ message: "Error with tokevn", error: e.message });
+        return res.status(401).send({ message: "Error with token", error: e.message });
     }
 });
 
@@ -41,12 +39,12 @@ router.post("/login", authValidation, async (req, res) => {
                 return res.status(400).send({ message: "error", error: "something went wrong" });
             } else {
                 if (success) {
-                    const token = generateToken(req.body.username);
+                    const tokens = generateTokens(req.body.username);
                     return res.status(200).json(
                         {
                             message: "login successful",
                             jwt: {
-                                token: token,
+                                tokens,
                                 username: req.body.username
                             }
                         }
@@ -94,11 +92,11 @@ router.post("/register", authValidation, async (req, res) => {
 
                 return user.save()
                     .then(() => {
-                        const token = generateToken(username);
+                        const tokens = generateTokens(username);
                         return res.status(200).json({
                             message: "successfully registered",
                             jwt: {
-                                token: token,
+                                tokens,
                                 username: username
                             }
                         });
