@@ -9,14 +9,15 @@ const invalidTokenMessage = {
     error: "Please provide a valid Bearer token"
 };
 
-export const generateToken = (username: string): string => {
+export const generateTokens = (username: string): { refreshToken: string, accessToken: string } => {
 
-    const token = jwt.sign({ user: username.toLowerCase()}, mySecret, { expiresIn: "30m" });
+    const refreshToken = jwt.sign({ user: username.toLowerCase() }, mySecret, { expiresIn: "30m" });
+    const accessToken = jwt.sign({ user: username.toLowerCase() }, mySecret, { expiresIn: "5m" });
 
-    return token;
+    return { refreshToken, accessToken };
 };
 
-export const checkToken = (
+export const checkAccessToken = (
     req: Request, res: Response, next: NextFunction
 ): Response | void => {
     const header = req.headers["authorization"] as string;
