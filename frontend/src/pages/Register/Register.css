@@ -1,0 +1,14 @@
+.register-page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.register-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 320px;
+    height: 100%;
+    padding-top: 150px;
+}

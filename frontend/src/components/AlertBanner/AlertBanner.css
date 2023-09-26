@@ -1,0 +1,14 @@
+.alert-container {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column-reverse;
+}
+
+.success-container {
+    max-width: 250px;
+}
+
+.error-container {
+    max-width: 250px;
+}

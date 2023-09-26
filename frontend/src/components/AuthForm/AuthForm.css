@@ -1,0 +1,28 @@
+.auth-container {
+    width: inherit;
+    height: inherit;
+    border: 1px solid gray;
+    border-radius: 10px;
+    padding: 10px 10px 20px 10px;
+    background-color: lightgray;
+    text-align: center;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.link {
+    padding-top: 10px;
+}
+
+.auth-button {
+    width: 100%;
+}
+
+.login-link {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%
+}
